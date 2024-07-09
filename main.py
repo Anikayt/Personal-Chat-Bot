@@ -2,16 +2,29 @@ import asyncio
 import base64
 import streamlit as st
 from streamlit_chat import message
-from bardapi import Bard
 import json
+from openai import OpenAI
 
 with open('creds.json', 'r') as f:
     file = json.load(f)
     token = file["output"]
 def generate_response(prompt):
-    bard = Bard(token=token)
-    response = bard.get_answer(prompt)
-    return response['content']
+    client = OpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key="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",
+    )
+    completion = client.chat.completions.create(
+        extra_headers={
+        },
+        model = "google/gemma-2-9b-it:free",
+        messages = [
+            {
+                "role": "user",
+                "content": prompt,
+            },
+        ],
+    )
+    return completion.choices[0].message.content
 
 async def main():
     st.title('🧛Personal Bot')
@@ -75,7 +88,6 @@ async def main():
         for i in range(len(st.session_state['generated']) - 1, -1, -1):
             message(st.session_state['past'][i], is_user=True, key=str(i) + '_user')
             message(st.session_state["generated"][i], key=str(i))
-
 
 
 asyncio.run(main())
