@@ -3,28 +3,34 @@ import base64
 import streamlit as st
 from streamlit_chat import message
 import json
+import requests
 from openai import OpenAI
 
 with open('creds.json', 'r') as f:
     file = json.load(f)
     token = file["output"]
+
+
 def generate_response(prompt):
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
-        api_key="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",
+        api_key="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",
     )
+
     completion = client.chat.completions.create(
         extra_headers={
         },
-        model = "google/gemma-2-9b-it:free",
-        messages = [
+        model="google/gemma-2-9b-it",
+        messages=[
             {
                 "role": "user",
                 "content": prompt,
             },
         ],
     )
+    print(completion.choices[0].message.content)
     return completion.choices[0].message.content
+
 
 async def main():
     st.title('🧛Personal Bot')
